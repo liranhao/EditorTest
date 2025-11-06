@@ -155,11 +155,16 @@ class BaseCanvasItem: UIView {
     }
 
     private func clampedSize(for proposedSize: CGSize, in bounds: CGRect) -> CGSize {
+        let minSize = minimumContentSize()
         let maxWidth = bounds.width
         let maxHeight = bounds.height
-        let width = min(maxWidth, max(minimumSide, proposedSize.width))
-        let height = min(maxHeight, max(minimumSide, proposedSize.height))
+        let width = min(maxWidth, max(minSize.width, proposedSize.width))
+        let height = min(maxHeight, max(minSize.height, proposedSize.height))
         return CGSize(width: width, height: height)
+    }
+
+    func minimumContentSize() -> CGSize {
+        CGSize(width: minimumSide, height: minimumSide)
     }
 
     func constrainedFrame(for proposedSize: CGSize, center proposedCenter: CGPoint) -> (size: CGSize, center: CGPoint) {

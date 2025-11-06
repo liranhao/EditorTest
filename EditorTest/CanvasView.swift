@@ -84,19 +84,20 @@ class CanvasView: UIView {
         }
     }
 
-    func addText(text: String) {
-        let textView = UITextView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
-        textView.text = text
-        addSubview(textView)
-        textView.isUserInteractionEnabled = true
-        let pinchGesture = UIPinchGestureRecognizer(target: self, action: #selector(handleTextPinch(_:)))
-        textView.addGestureRecognizer(pinchGesture)
-        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handleTextPan(_:)))
-        textView.addGestureRecognizer(panGesture)
+    func addText(text: String = "TEXT") {
+        let textItem = CanvasTextItem(text: text, minimumSide: 20)
+        textItem.center = CGPoint(x: bounds.midX, y: bounds.midY)
+        textItem.delegate = self
+        addSubview(textItem)
+        bringSubviewToFront(textItem)
+        selectItem(textItem)
     }
 
-    func removeText(textView: UITextView) {
-        textView.removeFromSuperview()
+    func removeText(item: CanvasTextItem) {
+        if item === selectedItem {
+            deselectCurrentItem()
+        }
+        item.removeFromSuperview()
     }
 
     private func calculateInitialSize(for image: UIImage) -> CGSize {
@@ -132,22 +133,6 @@ class CanvasView: UIView {
     private func setCanvasGestures(enabled: Bool) {
         canvasPanGesture.isEnabled = enabled
         canvasPinchGesture.isEnabled = enabled
-    }
-
-    @objc private func handleTextPinch(_ gesture: UIPinchGestureRecognizer) {
-        guard let targetView = gesture.view else { return }
-        guard gesture.state == .began || gesture.state == .changed else { return }
-        let scale = gesture.scale
-        targetView.transform = targetView.transform.scaledBy(x: scale, y: scale)
-        gesture.scale = 1.0
-    }
-
-    @objc private func handleTextPan(_ gesture: UIPanGestureRecognizer) {
-        guard let targetView = gesture.view else { return }
-        let translation = gesture.translation(in: self)
-        guard gesture.state == .began || gesture.state == .changed else { return }
-        targetView.center = CGPoint(x: targetView.center.x + translation.x, y: targetView.center.y + translation.y)
-        gesture.setTranslation(.zero, in: self)
     }
 }
 
